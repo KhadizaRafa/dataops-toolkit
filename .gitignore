@@ -27,6 +27,8 @@ venv/
 env/
 ENV/
 
+output.xlsx
+project_context.md
 # Pytest
 .pytest_cache/
 
