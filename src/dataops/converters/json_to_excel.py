@@ -73,13 +73,9 @@ def convert_json_to_excel(input_path: str, output_path: str, fields: dict = None
                     # Map and filter fields: {excel_header: value}
                     # Only include fields that exist in the flattened object
                     row = {fields[k]: flat_obj[k] for k in fields if k in flat_obj}
-                    
-                    # If strict filtering resulted in empty row, skip it? 
-                    # Decision: If we found NONE of the requested fields, but user asked for them,
-                    # we should probably just have empty values? 
-                    # But for now, let's keep consistent: if row is empty, we skip (assuming irrelevant object)
+
                     if not row:
-                        continue
+                        raise ValueError(f"Object matches none of the requested fields: {list(fields.keys())}")
                 else:
                     row = flat_obj
                 
