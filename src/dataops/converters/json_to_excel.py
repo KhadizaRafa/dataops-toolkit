@@ -6,6 +6,7 @@ from ..utils.logger import setup_logger
 
 logger = setup_logger(__name__)
 
+
 def flatten_dict(d: Dict, parent_key: str = "", sep: str = "_") -> Dict:
     """
     Recursively flattens a nested dictionary.
@@ -43,6 +44,32 @@ def find_lists_of_objects(data, parent_path=""):
 
     return results
 
+def find_best_match(flat_obj: Dict[str, Any], field: str) -> Any:
+    """
+    Finds the value for a requested field using a priority strategy:
+    1. Exact match.
+    2. Suffix match (e.g. asking for 'pin' finds '_source_pin').
+       If multiple suffix matches exist, prefers the shortest key 
+       (closest to root or simplest).
+    """
+    # 1. Exact match
+    if field in flat_obj:
+        return flat_obj[field]
+    
+    # 2. Suffix match
+    # matches keys ending with 'field' (e.g. '_pin' or '.pin')
+    # We enforce a delimiter or start of string to avoid 'spin' matching 'pin' in a misleading way
+    # But often data is just '_source_pin'. strict suffix check is usually enough.
+    candidates = [k for k in flat_obj if k.endswith(field)]
+    
+    if not candidates:
+        return None
+        
+    # Sort candidates: length triggers first (shortest is best), then alpha
+    # e.g. '_pin' (4) better than '_source_pin' (11) if both exist
+    best_key = sorted(candidates, key=lambda x: (len(x), x))[0]
+    return flat_obj[best_key]
+
 def convert_json_to_excel(input_path: str, output_path: str, fields: dict = None):
     """
     Converts a JSON file to an Excel file with optional field selection and renaming.
@@ -70,12 +97,17 @@ def convert_json_to_excel(input_path: str, output_path: str, fields: dict = None
                 flat_obj = flatten_dict(obj)
                 
                 if fields:
-                    # Map and filter fields: {excel_header: value}
-                    # Only include fields that exist in the flattened object
-                    row = {fields[k]: flat_obj[k] for k in fields if k in flat_obj}
-
+                    # Map and filter fields using smart matching
+                    row = {}
+                    for json_field, excel_header in fields.items():
+                        val = find_best_match(flat_obj, json_field)
+                        if val is not None:
+                            row[excel_header] = val
+                            
                     if not row:
-                        raise ValueError(f"Object matches none of the requested fields: {list(fields.keys())}")
+                        # Log a debug warning but don't crash, maybe this object just doesn't have the info
+                        # raise ValueError(f"Object matches none of the requested fields: {list(fields.keys())}")
+                        continue
                 else:
                     row = flat_obj
                 

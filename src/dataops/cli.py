@@ -34,18 +34,21 @@ def json_to_excel(input_path, output_path, json_fields, output_headers):
     try:
         field_map = None
         
-        if json_fields and output_headers:
+        if json_fields:
             j_fields = [f.strip() for f in json_fields.split(",")]
-            o_headers = [h.strip() for h in output_headers.split(",")]
             
-            if len(j_fields) != len(o_headers):
-                raise ValueError("Number of json-fields and output-headers must match.")
+            if output_headers:
+                o_headers = [h.strip() for h in output_headers.split(",")]
+                if len(j_fields) != len(o_headers):
+                    raise ValueError("Number of json-fields and output-headers must match.")
+            else:
+                o_headers = j_fields
             
             field_map = dict(zip(j_fields, o_headers))
             logger.info(f"Field mapping configured: {field_map}")
         
-        elif json_fields or output_headers:
-            raise ValueError("Both --json-fields and --output-headers must be provided together.")
+        elif output_headers:
+            raise ValueError("--output-headers cannot be used without --json-fields.")
                 
         convert_json_to_excel(input_path, output_path, fields=field_map)
         click.echo(f"Successfully converted {input_path} to {output_path}")

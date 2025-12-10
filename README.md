@@ -1,8 +1,8 @@
 # DataOps Toolkit — A Modular Automation Framework
 
 ![Python](https://img.shields.io/badge/python-3.8+-blue.svg)
-![License](https://img.shields.io/badge/license-MIT-green.svg)
 ![Build Status](https://img.shields.io/badge/build-passing-brightgreen)
+![License](https://img.shields.io/badge/license-MIT-green)
 
 > A Python-based automation toolkit designed for validating, transforming, merging, and converting structured data. Built with extensibility and reusability in mind.
 
@@ -35,11 +35,13 @@ pip install -e .[dev]
 The toolkit exposes a `dataops` command.
 
 ### Convert CSV to JSON
+
 ```bash
 dataops csv-to-json input.csv output.json
 ```
 
 ### Convert JSON to Excel
+
 ```bash
 # Basic conversion
 dataops json-to-excel input.json output.xlsx
@@ -49,6 +51,7 @@ dataops json-to-excel input.json output.xlsx --json-fields "key,doc_count" --out
 ```
 
 ### Merge Files
+
 ```bash
 # Simple concatenation
 dataops merge file1.csv file2.csv output.csv
@@ -58,6 +61,7 @@ dataops merge file1.csv file2.csv output.csv --on id --how left
 ```
 
 ### Validate Data
+
 ```bash
 dataops validate input.csv
 ```
@@ -95,4 +99,9 @@ pytest
 - **Clean Code**: Modular, consistently styled, and documented.
 
 ---
+
 Built with ❤️ by a QA Automation Engineer.
+
+## 📄 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
